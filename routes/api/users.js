@@ -8,6 +8,15 @@ const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
 // Load User model
 const User = require("../../models/User");
+const  nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth:{
+        user: keys.ADMIN_EMAIL,
+        pass: keys.ADMIN_PASSWORD
+    }
+});
 
 // @route POST api/users/register
 // @desc Register user
@@ -38,6 +47,24 @@ router.post("/register", (req, res) => {
                         .then(user => res.json(user))
                         .catch(err => console.log(err));
                 });
+            });
+
+            const mailOptions = {
+                from: keys.ADMIN_EMAIL,
+                to: req.body.email,
+                subject:'Hello',
+                // text: req.body.password,
+                html: '<h1>Hi ' + req.body.name + '</h1><p>Your credentials are:</p><p>Email: ' + req.body.email + '</p>\n' +
+                    '<p>Password: ' + req.body.password + '</p>'
+            }
+
+            transporter.sendMail(mailOptions, function (error,info) {
+                if(error){
+                    console.log(error);
+                } else{
+                    console.log("Email sent" + info.response);
+                }
+                
             });
         }
     });
